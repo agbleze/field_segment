@@ -161,3 +161,8 @@ cython_debug/
 
 
 *.json
+train_images/
+test_images/
+data/
+*.pth
+*.pt
