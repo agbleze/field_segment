@@ -194,7 +194,8 @@ def visualize_segmask(annotation_path, img_dir):
 img_dir = "/home/lin/codebase/field_segment/data/train_images/images"
 visualize_segmask(annotation_path=train_annot_path, img_dir=img_dir)
 
-        
+#%%  ##outlier detection
+      
     
 # %%
 print(type(default_rgb_bands))  # Should print <class 'numpy.ndarray'>
