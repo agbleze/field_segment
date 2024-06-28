@@ -91,18 +91,6 @@ plt.show()
 
 # %%
 default_rgb_bands.shape
-# %%
-def draw_masks_fromDict(image, masks_generated) :
-  masked_image = image.copy()
-  for i in range(len(masks_generated)) :
-    masked_image = np.where(np.repeat(np.int32(masks_generated[i]['segmentation'])[:, :, np.newaxis], 3, axis=2),
-                            np.random.choice(range(256), size=3),
-                            masked_image)
-
-    masked_image = masked_image.astype(np.uint8)
-
-  return cv2.addWeighted(image, 0.3, masked_image, 0.7, 0)
-
 
 #%%
 annot_images = data["images"]
@@ -112,8 +100,6 @@ annot_images = data["images"]
 train_0_anns = [ann for ann in annot_images if ann["file_name"]=="train_0.tif"][0]["annotations"]
 
 
-# %%
-draw_masks_fromDict(image=default_rgb_bands, masks_generated=train_0_anns)
 # %%
 mask = [0.0,
    19.602,
@@ -179,12 +165,6 @@ def visualize_segmask(annotation_path, img_dir):
             pts = np.array(obj['segmentation']).reshape(-1, 1, 2).astype(np.int32)
             cv2.fillPoly(mask, [pts], color)
             centroid = np.mean(pts, axis=0)
-            # cv2.putText(mask, f"{obj['class']}", (int(centroid[0][0]), int(centroid[0][1])), 
-            #             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2
-            #             )
-
-        # Combine the image with the mask
-        #img_masked = cv2.bitwise_and(default_rgb_bands, mask)
         img_masked = cv2.addWeighted(img, 0.7, mask, 0.1, 0)
         plt.imshow(img_masked)
         plt.show()
