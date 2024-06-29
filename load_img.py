@@ -138,15 +138,23 @@ for obj in train_0_anns:
 # Combine the image with the mask
 #img_masked = cv2.bitwise_and(default_rgb_bands, mask)
 img_masked = cv2.addWeighted(default_rgb_bands, 0.7, mask, 0.1, 0)
-cv2.putText(image, category_name, (x, y - 10), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2
-                            )
 #%% Display the image
 #plt.imshow(cv2.cvtColor(img_masked, cv2.COLOR_BGR2RGB))
 plt.imshow(img_masked)
 plt.show()
 
+#%%
 
+cv2.imwrite("example_mask.png", mask)
+
+
+#%%
+import cv2
+import numpy as np
+contours = np.array([[50,50], [50,150], [150,150], [150,50]])
+image = np.zeros((200,200))
+cv2.fillPoly(image, pts = [contours], color =(255,255,255))
+cv2.imshow("filledPolygon", image)
 #%% 
 
 def visualize_segmask(annotation_path, img_dir):
@@ -174,6 +182,128 @@ def visualize_segmask(annotation_path, img_dir):
 img_dir = "/home/lin/codebase/field_segment/data/train_images/images"
 visualize_segmask(annotation_path=train_annot_path, img_dir=img_dir)
 
+
+#%%
+
+cv2.imread()
+
+#%%
+
+import numpy as np
+from PIL import Image, ImageDraw
+
+# Load the image
+#image_path = 'path_to_your_image.jpg'
+#ex_image = Image.open(train_0_path)
+height, width, num_chan = default_rgb_bands.shape
+
+# Initialize an empty mask
+ex_mask = Image.new('L', (width, height), 0)
+
+#%% Draw each instance's polygon on the mask with a unique pixel value
+for i, instance in enumerate(train_0_anns, start=1):
+    segmentation = instance['segmentation']
+    vertices = np.array(segmentation).reshape(-1, 2)
+    ImageDraw.Draw(ex_mask).polygon(xy=vertices.ravel().tolist(), outline=i, fill=i)
+
+#%% Convert the mask to a numpy array
+ex_mask = np.array(ex_mask)
+
+# Save the mask to a file
+mask_save_path = 'train_0_mask.tif'
+mask_image = Image.fromarray(obj=ex_mask.astype(np.uint8))
+mask_image.save(mask_save_path)
+
+# Visualize the mask
+import matplotlib.pyplot as plt
+plt.imshow(X=mask, cmap='gray')
+plt.show()
+
+
+#%%
+def create_instance_segmask(annotation_path, img_dir, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    with open(annotation_path,"r") as file:
+        annot_data = json.load(file)
+        
+    img_data = annot_data["images"]
+    for annot in img_data:
+        file_name = annot["file_name"]
+        train_0_anns = annot["annotations"]
+        img_path = os.path.join(img_dir, file_name)
+        img = get_tiff_img(img_path, return_all_bands=False, bands=("B04", "B03", "B02"))
+        height, width, num_chan = img.shape
+        mask = Image.new('L', (width, height), 0)
+        for i, instance in enumerate(train_0_anns, start=1):
+            segmentation = instance['segmentation']
+            vertices = np.array(segmentation).reshape(-1, 2)
+            ImageDraw.Draw(mask).polygon(xy=vertices.ravel().tolist(), outline=i, fill=i)
+            
+        mask = np.array(mask)
+        # Save the mask to a file
+        image_path = os.path.join(output_dir,f"mask_{file_name}")
+        mask_save_path = os.path.join(image_path)
+        mask_image = Image.fromarray(obj=mask.astype(np.uint32))
+        mask_image.save(mask_save_path)
+        
+#%%
+
+create_instance_segmask(annotation_path=train_annot_path, img_dir=img_dir,
+                        output_dir="masks"
+                        )
+
+
+
+#%% Initialize an empty mask
+ex_mask = Image.new('L', (width, height), 0)
+
+#%% Draw each instance's polygon on the mask with a unique pixel value
+for i, instance in enumerate(train_0_anns, start=1):
+    segmentation = instance['segmentation']
+    vertices = np.array(segmentation).reshape(-1, 2)
+    ImageDraw.Draw(ex_mask).polygon(xy=vertices.ravel().tolist(), outline=i, fill=i)
+
+#%% Convert the mask to a numpy array
+ex_mask = np.array(ex_mask)
+
+# Save the mask to a file
+mask_save_path = 'train_0_mask.png'
+mask_image = Image.fromarray(obj=ex_mask.astype(np.uint8))
+mask_image.save(mask_save_path)
+
+# Visualize the mask
+import matplotlib.pyplot as plt
+plt.imshow(X=mask, cmap='gray')
+plt.show()
+
+
+#%%
+
+read_img = Image.open("/home/lin/codebase/field_segment/masks/mask_train_0.tif")#.shape
+
+#%%
+from PIL import ImageDraw
+def create_polygon_mask(image_size, vertices):
+    """
+    Create a grayscale image with a white polygonal area on a black background.
+
+    Parameters:
+    - image_size (tuple): A tuple representing the dimensions (width, height) of the image.
+    - vertices (list): A list of tuples, each containing the x, y coordinates of a vertex
+                        of the polygon. Vertices should be in clockwise or counter-clockwise order.
+
+    Returns:
+    - PIL.Image.Image: A PIL Image object containing the polygonal mask.
+    """
+
+    # Create a new black image with the given dimensions
+    mask_img = Image.new('L', image_size, 0)
+    
+    # Draw the polygon on the image. The area inside the polygon will be white (255).
+    ImageDraw.Draw(mask_img, 'L').polygon(vertices, fill=(255))
+
+    # Return the image with the drawn polygon
+    return mask_img
 #%%  ##outlier detection
       
     

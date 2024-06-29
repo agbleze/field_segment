@@ -166,3 +166,8 @@ test_images/
 data/
 *.pth
 *.pt
+*.tif
+masks/
+*.png
+*.jpg
+model_sore/*
