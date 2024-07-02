@@ -2,6 +2,7 @@
 import rasterio
 import matplotlib.pyplot as plt
 import numpy as np
+import os, json, cv2
 
 def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
                  normalize_bands=True
@@ -27,3 +28,22 @@ def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
 
     return dstacked_bands
 
+def visualize_segmask(annotation_path, img_dir):
+    with open(annotation_path,"r") as file:
+        annot_data = json.load(file)
+        
+    img_data = annot_data["images"]
+    for annot in img_data:
+        file_name = annot["file_name"]
+        train_0_anns = annot["annotations"]
+        img_path = os.path.join(img_dir, file_name)
+        img = get_tiff_img(img_path, return_all_bands=False, bands=("B04", "B03", "B02"))
+        mask = np.zeros_like(img)
+        for obj in train_0_anns:
+            color = (np.random.randint(0,255), np.random.randint(0,255), np.random.randint(0,255))
+            pts = np.array(obj['segmentation']).reshape(-1, 1, 2).astype(np.int32)
+            cv2.fillPoly(mask, [pts], color)
+            centroid = np.mean(pts, axis=0)
+        img_masked = cv2.addWeighted(img, 0.7, mask, 0.1, 0)
+        plt.imshow(img_masked)
+        plt.show()

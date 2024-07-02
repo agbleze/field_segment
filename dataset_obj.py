@@ -192,68 +192,68 @@ from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 
 # "/home/lin/codebase/field_segment/data/test_images/images/test_0.tif",
 test_img_paths = sorted(glob(f"data/test_images/images/*.tif"))
-test_img_paths= [test_img_paths[-1]]
-for img_path in test_img_paths:
-    image = get_tiff_img(path=img_path,
-                        return_all_bands=False,
-                        bands=("B04", "B03", "B02"))
-    eval_transform = get_transform(train=False)
-    model_path = "/home/lin/codebase/field_segment/model_store/fieldmask_net_epoch_100.pth"
+# test_img_paths= [test_img_paths[-1]]
+# for img_path in test_img_paths:
+#     image = get_tiff_img(path=img_path,
+#                         return_all_bands=False,
+#                         bands=("B04", "B03", "B02"))
+#     eval_transform = get_transform(train=False)
+#     model_path = "/home/lin/codebase/field_segment/model_store/fieldmask_net_epoch_100.pth"
 
-    model_dict = torch.load(model_path)
+#     model_dict = torch.load(model_path)
 
-    model.load_state_dict(model_dict)
+#     model.load_state_dict(model_dict)
 
-    image = tv_tensors.Image(image).permute(2,0,1)
-    model.eval()
-    with torch.no_grad():
-        x = eval_transform(image)
-        # convert RGBA -> RGB and move to device
-        x = x[:3, ...].to(device)
-        predictions = model([x, ])
-        pred = predictions[0]
-
-
-    image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
-    image = image[:3, ...]
-    pred_labels = [f"field: {score:.3f}" for label, score in zip(pred["labels"], pred["scores"])]
-    pred_boxes = pred["boxes"].long()
-    output_image = draw_bounding_boxes(image, pred_boxes, pred_labels, colors="red")
-
-    masks = (pred["masks"] > 0.5).squeeze(1)
-    output_image = draw_segmentation_masks(output_image, masks, alpha=0.5, colors="blue")
+#     image = tv_tensors.Image(image).permute(2,0,1)
+#     model.eval()
+#     with torch.no_grad():
+#         x = eval_transform(image)
+#         # convert RGBA -> RGB and move to device
+#         x = x[:3, ...].to(device)
+#         predictions = model([x, ])
+#         pred = predictions[0]
 
 
-    plt.figure(figsize=(12, 12))
-    plt.imshow(output_image.permute(1, 2, 0))
+#     image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
+#     image = image[:3, ...]
+#     pred_labels = [f"field: {score:.3f}" for label, score in zip(pred["labels"], pred["scores"])]
+#     pred_boxes = pred["boxes"].long()
+#     output_image = draw_bounding_boxes(image, pred_boxes, pred_labels, colors="red")
+
+#     masks = (pred["masks"] > 0.5).squeeze(1)
+#     output_image = draw_segmentation_masks(output_image, masks, alpha=0.5, colors="blue")
+
+
+#     plt.figure(figsize=(12, 12))
+#     plt.imshow(output_image.permute(1, 2, 0))
 
 #%%
-import numpy as np
-import cv2
-import torch
-import json
+# import numpy as np
+# import cv2
+# import torch
+# import json
 
-def mask_to_polygon(mask):
-    # Find contours in the mask
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+# def mask_to_polygon(mask):
+#     # Find contours in the mask
+#     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Approximate the contour to a polygon and flatten the polygon array
-    polygons = [cv2.approxPolyDP(contour, 1, True).flatten().tolist() for contour in contours]
+#     # Approximate the contour to a polygon and flatten the polygon array
+#     polygons = [cv2.approxPolyDP(contour, 1, True).flatten().tolist() for contour in contours]
     
-    return polygons
+#     return polygons
 
-# Assume 'masks' is the output from your Mask R-CNN model
-#masks = torch.tensor(...)  # Replace with your masks
+# # Assume 'masks' is the output from your Mask R-CNN model
+# #masks = torch.tensor(...)  # Replace with your masks
 
-# Convert each mask to a polygon
-annotations = []
-for i in range(masks.shape[0]):
-    mask = masks[i].cpu().numpy().astype(np.uint8)
-    polygons = mask_to_polygon(mask)
-    for polygon in polygons:
-        annotations.append({'class': i, 'segmentation': polygon})
+# # Convert each mask to a polygon
+# annotations = []
+# for i in range(masks.shape[0]):
+#     mask = masks[i].cpu().numpy().astype(np.uint8)
+#     polygons = mask_to_polygon(mask)
+#     for polygon in polygons:
+#         annotations.append({'class': i, 'segmentation': polygon})
 
-print(annotations)
+# print(annotations)
 
 
 #%%
@@ -409,10 +409,6 @@ for annotation in annotations:
 # Display the image
 plt.imshow(image)
 plt.show()
-
-def create_prediction_annotation(model, test_img_dir,
-                                 save_as):
-    pass
 
 
 

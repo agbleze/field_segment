@@ -1,0 +1,8 @@
+
+1. Randomly select different bands for training
+2. select full combinatorial of all bands for training
+3. Explore training with MOCO weights among other models in geotorch
+4. create a separate stem that takes 12 channels and convolve into 3 channels and then feed
+to exising mask rcnn model
+5. create various index for training model
+
