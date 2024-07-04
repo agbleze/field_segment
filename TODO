@@ -4,5 +4,8 @@
 3. Explore training with MOCO weights among other models in geotorch
 4. create a separate stem that takes 12 channels and convolve into 3 channels and then feed
 to exising mask rcnn model
-5. create various index (NDVI, NDMVI)for training model
+5. create various index (NDVI, NDMVI) for training model
+6. Try other frameworks like Segmentation Models Pytorch, MMSegmentation
+
+### For 6, first find and run a tutorial
 
