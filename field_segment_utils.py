@@ -3,6 +3,26 @@ import rasterio
 import matplotlib.pyplot as plt
 import numpy as np
 import os, json, cv2
+import json
+from PIL import Image
+import cv2
+import torch
+import tensorboard
+import os
+import tempfile
+import torch
+from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.loggers import TensorBoardLogger
+from torchgeo.datamodules import EuroSAT100DataModule
+from torchgeo.trainers import ClassificationTask
+from torchgeo.models import ResNet18_Weights, ViTSmall16_Weights
+import timm
+from torchsummary import summary
+import rasterio
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image, ImageDraw
 
 def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
                  normalize_bands=True
@@ -47,3 +67,29 @@ def visualize_segmask(annotation_path, img_dir):
         img_masked = cv2.addWeighted(img, 0.7, mask, 0.1, 0)
         plt.imshow(img_masked)
         plt.show()
+
+
+def create_instance_segmask(annotation_path, img_dir, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    with open(annotation_path,"r") as file:
+        annot_data = json.load(file)
+        
+    img_data = annot_data["images"]
+    for annot in img_data:
+        file_name = annot["file_name"]
+        train_0_anns = annot["annotations"]
+        img_path = os.path.join(img_dir, file_name)
+        img = get_tiff_img(img_path, return_all_bands=False, bands=("B04", "B03", "B02"))
+        height, width, num_chan = img.shape
+        mask = Image.new('L', (width, height), 0)
+        for i, instance in enumerate(train_0_anns, start=1):
+            segmentation = instance['segmentation']
+            vertices = np.array(segmentation).reshape(-1, 2)
+            ImageDraw.Draw(mask).polygon(xy=vertices.ravel().tolist(), outline=i, fill=i)
+            
+        mask = np.array(mask)
+        # Save the mask to a file
+        image_path = os.path.join(output_dir,f"mask_{file_name}")
+        mask_save_path = os.path.join(image_path)
+        mask_image = Image.fromarray(obj=mask.astype(np.uint8))
+        mask_image.save(mask_save_path)

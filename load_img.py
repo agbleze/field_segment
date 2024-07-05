@@ -61,7 +61,7 @@ def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
     
     else:
         band_indexs = [all_band_names.index(band_name) for band_name in bands]
-    print(band_indexs)
+    #print(band_indexs)
     with rasterio.open(path) as src:
         img_bands = [src.read(band) for band in range(1,13)]
     dstacked_bands = np.dstack([img_bands[band_index] for band_index in band_indexs])
@@ -180,6 +180,8 @@ def visualize_segmask(annotation_path, img_dir):
 
 #%%
 img_dir = "/home/lin/codebase/field_segment/data/train_images/images"
+
+#%%
 visualize_segmask(annotation_path=train_annot_path, img_dir=img_dir)
 
 
@@ -192,6 +194,7 @@ cv2.imread()
 import numpy as np
 from PIL import Image, ImageDraw
 
+#%%
 # Load the image
 #image_path = 'path_to_your_image.jpg'
 #ex_image = Image.open(train_0_path)
@@ -234,6 +237,7 @@ def create_instance_segmask(annotation_path, img_dir, output_dir):
         img = get_tiff_img(img_path, return_all_bands=False, bands=("B04", "B03", "B02"))
         height, width, num_chan = img.shape
         mask = Image.new('L', (width, height), 0)
+        print(file_name)
         for i, instance in enumerate(train_0_anns, start=1):
             segmentation = instance['segmentation']
             vertices = np.array(segmentation).reshape(-1, 2)
@@ -243,17 +247,21 @@ def create_instance_segmask(annotation_path, img_dir, output_dir):
         # Save the mask to a file
         image_path = os.path.join(output_dir,f"mask_{file_name}")
         mask_save_path = os.path.join(image_path)
-        mask_image = Image.fromarray(obj=mask.astype(np.uint32))
+        mask_image = Image.fromarray(obj=mask.astype(np.uint8))
         mask_image.save(mask_save_path)
         
 #%%
 
 create_instance_segmask(annotation_path=train_annot_path, img_dir=img_dir,
-                        output_dir="masks"
+                        output_dir="masks_smp"
                         )
 
 
+#%%
 
+img_37_path = "/home/lin/codebase/field_segment/data/train_images/images/train_37.tif"
+
+get_tiff_img(path=img_37_path, return_all_bands=False, normalize_bands=True)
 #%% Initialize an empty mask
 ex_mask = Image.new('L', (width, height), 0)
 
