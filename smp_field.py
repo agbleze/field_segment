@@ -23,36 +23,48 @@ import segmentation_models_pytorch as smp
 from segmentation_models_pytorch.utils.losses import DiceLoss
 from segmentation_models_pytorch.utils.metrics import IoU
 import rasterio
+
 #%%
-def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
-                 normalize_bands=True
-                ):
-    all_band_names = ("B01","B02", "B03","B04","B05", "B06",
-                      "B07","B08","B8A","B09","B11","B12"
-                    )
-    if return_all_bands:
-        band_indexs = [all_band_names.index(band_name) for band_name in all_band_names]
+
+from field_segment_utils import visualize_segmask, get_tiff_img, create_instance_segmask
+
+#%%
+# def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
+#                  normalize_bands=True
+#                 ):
+#     all_band_names = ("B01","B02", "B03","B04","B05", "B06",
+#                       "B07","B08","B8A","B09","B11","B12"
+#                     )
+#     if return_all_bands:
+#         band_indexs = [all_band_names.index(band_name) for band_name in all_band_names]
     
-    else:
-        band_indexs = [all_band_names.index(band_name) for band_name in bands]
-    #print(band_indexs)
-    with rasterio.open(path) as src:
-        img_bands = [src.read(band) for band in range(1,13)]
-    dstacked_bands = np.dstack([img_bands[band_index] for band_index in band_indexs])
-    #dstacked_bands = np.dstack([img_bands[3], img_bands[2], img_bands[1]])
-    if normalize_bands:
-        # Normalize bands to 0-255
-        dstacked_bands = ((dstacked_bands - dstacked_bands.min()) / 
-                          (dstacked_bands.max() - dstacked_bands.min()) * 255
-                          ).astype(np.uint8)
+#     else:
+#         band_indexs = [all_band_names.index(band_name) for band_name in bands]
+#     #print(band_indexs)
+#     with rasterio.open(path) as src:
+#         img_bands = [src.read(band) for band in range(1,13)]
+#     dstacked_bands = np.dstack([img_bands[band_index] for band_index in band_indexs])
+#     #dstacked_bands = np.dstack([img_bands[3], img_bands[2], img_bands[1]])
+#     if normalize_bands:
+#         # Normalize bands to 0-255
+#         dstacked_bands = ((dstacked_bands - dstacked_bands.min()) / 
+#                           (dstacked_bands.max() - dstacked_bands.min()) * 255
+#                           ).astype(np.uint8)
 
-    return dstacked_bands
+#     return dstacked_bands
 
+#%%
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 img_dir = "/home/lin/codebase/field_segment/data/train_images/images"
 mask_dir = "/home/lin/codebase/field_segment/masks_smp"
 train_annot_path = "/home/lin/codebase/field_segment/train_annotation.json"
+
+
+
+#%%
+create_instance_segmask(annotation_path=train_annot_path, img_dir=img_dir, output_dir=mask_dir)
+
 
 # %%
 # helper function for data visualization
@@ -109,12 +121,19 @@ class Dataset(BaseDataset):
     def __getitem__(self, i):
         img_path = self.imgs[i]
         mask_path = self.masks[i]
-        print(mask_path)
+        new_width = 1216
+        new_height = 832
+        #print(mask_path)
         image = get_tiff_img(path=img_path, return_all_bands=False, 
                            bands=("B04", "B03", "B02")
                            )
+        image = cv2.resize(image, (new_width,new_height), interpolation=cv2.INTER_NEAREST)
+        image = image/255.0
         #mask = np.array(Image.open(mask_path), dtype=np.int32) #torch.tensor(np.array(Image.open(mask_path), dtype=np.int32))
-        mask = cv2.imread(mask_path, 0).astype('float')
+        mask = cv2.imread(mask_path)#.astype('float')
+        mask = cv2.resize(mask, (new_width, new_height), interpolation=cv2.INTER_NEAREST)
+        #mask = cv2.resize(mask, (1216,832))
+        #mask = mask/255.0
         # read data
         #image = cv2.imread(self.images_fps[i])
         #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -133,6 +152,10 @@ class Dataset(BaseDataset):
         if self.preprocessing:
             sample = self.preprocessing(image=image, mask=mask)
             image, mask = sample['image'], sample['mask']
+            mask = mask.squeeze().long()
+        else:
+            image = torch.from_numpy(image).permute(2, 0,1).float()
+            mask = torch.from_numpy(mask).permute(2, 0, 1).squeeze().long()
             
         return image, mask
         
@@ -149,21 +172,60 @@ masks_list = sorted(glob(f"{mask_dir}/*.tif"))
 dataset = Dataset(images_list=images_list, masks_list=masks_list)
 
 image, mask = dataset[4] # get some sample
-visualize(
-    image=image, 
-    mask=mask.squeeze(),
-) 
+visualize(image=image,mask=mask.squeeze(),) 
 
 #%%
 img_37_path = "/home/lin/codebase/field_segment/masks_smp/mask_train_35.tif"
 
 #%%
-mask = cv2.imread(img_37_path)#.astype('float')   
+mask_raw = cv2.imread(img_37_path).astype('float')   
 #cv2.cvtColor(mask, )
+
+#%%
+
+mask.shape
+
 #%%
 mask2 = Image.open(img_37_path)
-mask2 = mask2.load()
+#mask2 = mask2.load()
 
+
+#%%
+img_path = "/home/lin/codebase/field_segment/data/train_images/images/train_35.tif"
+img = get_tiff_img(path=img_path, return_all_bands=False, 
+                    bands=("B04", "B03", "B02")
+                    )
+
+#%%
+img
+#img.shape
+
+cv2.resize(img, (1216,832)).shape
+#img.resize((1216,832))
+
+#%%
+
+np.min(img/255)
+
+img_scaled = img / 255
+#%%
+
+Image.fromarray(img)
+
+
+#%%
+
+#mask/255.0
+
+#%%
+
+np.min(mask/255)
+
+
+#%%
+#%%
+
+#mask = torch.tensor(np.array(Image.open(img_37_path), dtype=np.int32))
 # %%
 import albumentations as albu
 
@@ -182,7 +244,7 @@ def get_training_augmentation():
 
         albu.OneOf(
             [
-                albu.CLAHE(p=1),
+                #albu.CLAHE(p=1),
                 albu.RandomBrightnessContrast(p=1),
                 albu.RandomGamma(p=1),
             ],
@@ -212,7 +274,8 @@ def get_training_augmentation():
 def get_validation_augmentation():
     """Add paddings to make image shape divisible by 32"""
     test_transform = [
-        albu.PadIfNeeded(384, 480)
+        albu.PadIfNeeded(min_height=320, min_width=320, border_mode=cv2.BORDER_CONSTANT, value=0),
+        #albu.PadIfNeeded(384, 480)
     ]
     return albu.Compose(test_transform)
 
@@ -250,9 +313,9 @@ for i in range(3):
     image, mask = augmented_dataset[1]
     visualize(image=image, mask=mask)
 # %%
-ENCODER = 'resnet34' #'se_resnext50_32x4d'
+ENCODER = 'mit_b0' #'se_resnext50_32x4d'
 ENCODER_WEIGHTS = 'imagenet'
-CLASSES = ['car']
+CLASSES = ['field']
 ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
 DEVICE = 'cuda'
 
@@ -276,14 +339,14 @@ valid_mask_list = masks_list[40:]
 #%%
 train_dataset = Dataset(images_list=sorted(train_image_list), 
                         masks_list=sorted(train_mask_list),
-                        augmentation=get_training_augmentation(), 
-                        preprocessing=get_preprocessing(preprocessing_fn),
+                        augmentation=False,#get_training_augmentation(), 
+                        preprocessing=False, #get_preprocessing(preprocessing_fn),
                     )
 
 valid_dataset = Dataset(images_list=sorted(valid_image_list),
                         masks_list=sorted(valid_mask_list),
-                        augmentation=get_validation_augmentation(), 
-                        preprocessing=get_preprocessing(preprocessing_fn),
+                        augmentation=False, #get_validation_augmentation(), 
+                        preprocessing=False, #get_preprocessing(preprocessing_fn),
                     )
 
 train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=12)
@@ -295,9 +358,7 @@ metrics = [
     IoU(threshold=0.5),
 ]
 
-optimizer = torch.optim.Adam([ 
-    dict(params=model.parameters(), lr=0.0001),
-])
+optimizer = torch.optim.Adam([dict(params=model.parameters(), lr=0.0001)])
 
 #%%
 # create epoch runners 

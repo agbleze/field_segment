@@ -2,22 +2,10 @@
 import rasterio
 import matplotlib.pyplot as plt
 import numpy as np
-import os, json, cv2
+import os
 import json
 from PIL import Image
 import cv2
-import torch
-import tensorboard
-import os
-import tempfile
-import torch
-from lightning.pytorch import Trainer
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
-from torchgeo.datamodules import EuroSAT100DataModule
-from torchgeo.trainers import ClassificationTask
-from torchgeo.models import ResNet18_Weights, ViTSmall16_Weights
-import timm
 from torchsummary import summary
 import rasterio
 import matplotlib.pyplot as plt
@@ -85,7 +73,7 @@ def create_instance_segmask(annotation_path, img_dir, output_dir):
         for i, instance in enumerate(train_0_anns, start=1):
             segmentation = instance['segmentation']
             vertices = np.array(segmentation).reshape(-1, 2)
-            ImageDraw.Draw(mask).polygon(xy=vertices.ravel().tolist(), outline=i, fill=i)
+            ImageDraw.Draw(mask).polygon(xy=vertices.ravel().tolist(), outline=1, fill=1)
             
         mask = np.array(mask)
         # Save the mask to a file

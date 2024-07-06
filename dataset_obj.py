@@ -93,7 +93,7 @@ def get_transform(train):
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights="DEFAULT")
 #dataset = PennFudanDataset('data/PennFudanPed', get_transform(train=True))
 img_dir = "/home/lin/codebase/field_segment/data/train_images/images"
-mask_dir = "/home/lin/codebase/field_segment/masks"
+mask_dir = "/home/lin/codebase/field_segment/masks_smp"
 dataset = FieldDataset(img_dir=img_dir, mask_dir=mask_dir,
                        transforms=get_transform(train=True))
 data_loader = torch.utils.data.DataLoader(
@@ -148,33 +148,33 @@ data_loader_test = torch.utils.data.DataLoader(
 model = get_model_instance_segmentation(num_classes)
 
 # move model to the right device
+#device="cpu"
 model.to(device)
 
 # construct an optimizer
 params = [p for p in model.parameters() if p.requires_grad]
-optimizer = torch.optim.SGD(
-    params,
+optimizer = torch.optim.AdamW(params,
     lr=0.005,
-    momentum=0.9,
-    weight_decay=0.0005
-)
+    #momentum=0.9,
+    weight_decay=0.0005) 
+
 
 # and a learning rate scheduler
-lr_scheduler = torch.optim.lr_scheduler.StepLR(
-    optimizer,
-    step_size=3,
-    gamma=0.1
-)
+# lr_scheduler = torch.optim.lr_scheduler.StepLR(
+#     optimizer,
+#     step_size=3,
+#     gamma=0.1
+# )
 
 #%% let's train it just for 2 epochs
 num_epochs = 100
-model_store_dir = "model_store"
-model_name = "fieldmask_net"
+model_store_dir = "model_store_binary"
+model_name = "fieldmask_net_binary"
 for epoch in range(num_epochs):
     # train for one epoch, printing every 10 iterations
     metric_log, optimizer = train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=1)
     # update the learning rate
-    lr_scheduler.step()
+    #lr_scheduler.step()
     # evaluate on the test dataset
     coco_evaluator = evaluate(model, data_loader_test, device=device, epoch=epoch, 
                               model_store_dir=model_store_dir,
@@ -265,7 +265,9 @@ for i in range(0, 40):
         print('Decrease decoder learning rate to 1e-5!')
 
 
+#%%
 
+# Take epoch 1 to be best and test on images
 
 #%%
 
