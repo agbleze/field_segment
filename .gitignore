@@ -171,3 +171,4 @@ masks/
 *.png
 *.jpg
 model_sore/*
+detectron2/

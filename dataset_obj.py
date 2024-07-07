@@ -116,6 +116,17 @@ x = [torch.rand(3, 300, 400), torch.rand(3, 500, 400)]
 predictions = model(x)  # Returns predictions
 print(predictions[0])
 
+
+#%%
+
+model.named_children
+
+#%%
+model.rpn
+
+#%%
+
+model.modules.rpn
 # %%
 from engine import train_one_epoch, evaluate
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -166,6 +177,13 @@ optimizer = torch.optim.AdamW(params,
 #     gamma=0.1
 # )
 
+
+#%%
+
+model.named_parameters
+
+#%%
+model.backbone.named_children
 #%% let's train it just for 2 epochs
 num_epochs = 100
 model_store_dir = "model_store_binary"
@@ -184,86 +202,9 @@ for epoch in range(num_epochs):
 print("That's it!")
 
 
-
-#%% train with segmentation models pytorch
-import torch
-import numpy as np
-import segmentation_models_pytorch as smp
-
-ENCODER = 'resnet34' #'se_resnext50_32x4d'
-ENCODER_WEIGHTS = 'imagenet'
-CLASSES = ['field']
-ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
-DEVICE = 'cuda'
-
-# create segmentation model with pretrained encoder
-model = smp.FPN(
-    encoder_name=ENCODER, #in_channels=12, 
-    encoder_weights=ENCODER_WEIGHTS, 
-    classes=len(CLASSES), 
-    activation=ACTIVATION,
-)
-
-preprocessing_fn = smp.encoders.get_preprocessing_fn(ENCODER, ENCODER_WEIGHTS)
-
-#%%
-from segmentation_models_pytorch.utils.losses import DiceLoss
-from segmentation_models_pytorch.utils.metrics import IoU
-
-# Dice/F1 score - https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient
-# IoU/Jaccard score - https://en.wikipedia.org/wiki/Jaccard_index
-
-loss = DiceLoss()
-metrics = [
-    IoU(threshold=0.5),
-]
-
-optimizer = torch.optim.Adam([ 
-    dict(params=model.parameters(), lr=0.0001),
-])
-
 #%%
 
-# create epoch runners 
-# it is a simple loop of iterating over dataloader`s samples
-train_epoch = smp.utils.train.TrainEpoch(
-    model, 
-    loss=loss, 
-    metrics=metrics, 
-    optimizer=optimizer,
-    device=DEVICE,
-    verbose=True,
-)
-
-valid_epoch = smp.utils.train.ValidEpoch(
-    model, 
-    loss=loss, 
-    metrics=metrics, 
-    device=DEVICE,
-    verbose=True,
-)
-
-#%%
-# train model for 40 epochs
-
-max_score = 0
-
-for i in range(0, 40):
-    
-    print('\nEpoch: {}'.format(i))
-    train_logs = train_epoch.run(data_loader)
-    valid_logs = valid_epoch.run(data_loader_test)
-    
-    # do something (save model, change lr, etc.)
-    if max_score < valid_logs['iou_score']:
-        max_score = valid_logs['iou_score']
-        torch.save(model, './best_model.pth')
-        print('Model saved!')
-        
-    if i == 25:
-        optimizer.param_groups[0]['lr'] = 1e-5
-        print('Decrease decoder learning rate to 1e-5!')
-
+model.children()
 
 #%%
 
