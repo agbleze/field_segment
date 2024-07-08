@@ -37,6 +37,8 @@ class StemModel(nn.Module):
         self.conv2 = conv3x3(in_channels=12, out_channels=first_out_channel*2)
         self.bn2 = nn.BatchNorm2d(num_features=first_out_channel*2)
         self.conv3 = conv3x3(in_channels=first_out_channel*2, out_channels=first_out_channel*3)
+        self.bn3 = nn.BatchNorm2d(num_features=first_out_channel*3)
+        
         
         
         
