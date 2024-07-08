@@ -38,6 +38,19 @@ class StemModel(nn.Module):
         self.bn2 = nn.BatchNorm2d(num_features=first_out_channel*2)
         self.conv3 = conv3x3(in_channels=first_out_channel*2, out_channels=first_out_channel*3)
         self.bn3 = nn.BatchNorm2d(num_features=first_out_channel*3)
+        self.conv4 = conv3x3(in_channels=first_out_channel*3, out_channels=first_out_channel*4)
+        self.bn4 = nn.BatchNorm2d(num_features=first_out_channel*4)
+        self.conv5 = nn.Conv2d(in_channels=first_out_channel*4, out_channels=first_out_channel*3)
+        self.bn5 = nn.BatchNorm2d(num_features=first_out_channel*3)
+        self.conv6 = nn.Conv2d(in_channels=first_out_channel*3, out_channels=first_out_channel*2)
+        self.bn6 = nn.BatchNorm2d(num_features=first_out_channel*2)
+        self.conv7 = nn.Conv2d(in_channels=first_out_channel*2, out_channels=first_out_channel)
+        self.bn7 = nn.BatchNorm2d(num_features=first_out_channel)
+        self.conv8 = nn.Conv2d(in_channels=first_out_channel, out_channels=1)
+        self.bn8 = nn.BatchNorm2d(num_features=1)
+        
+    def forward(x, index_1=None, index_2=None):
+        
         
         
         
