@@ -50,8 +50,16 @@ class StemModel(nn.Module):
         self.bn8 = nn.BatchNorm2d(num_features=1)
         
     def forward(x, index_1=None, index_2=None):
+        # run the convultion and concat the index in the last layer
         
-        
+
+
+class CombineBlock(nn.Module):
+    def __init__(self):
+        pass
+    
+    
+            
         
         
         
