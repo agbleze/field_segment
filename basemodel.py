@@ -60,7 +60,8 @@ class CombineBlock(nn.Module):
     
     
 # create prestem model and attach to existing model           
-        
+ 
+# create index models
         
         
     
