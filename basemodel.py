@@ -63,7 +63,14 @@ class CombineBlock(nn.Module):
  
 # create index models
         
-        
+##
+#
+#
+
+class IndexBlock(nn.Module):
+    def __init__(self):
+        pass
+            
     
     
     
