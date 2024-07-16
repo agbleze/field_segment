@@ -73,6 +73,9 @@ class IndexBlock(nn.Module):
     
     def get_index():
         pass
+    
+    def calculate_index_map():
+        pass
             
     
     
