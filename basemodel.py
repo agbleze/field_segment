@@ -68,7 +68,7 @@ class CombineBlock(nn.Module):
 #
 
 class IndexBlock(nn.Module):
-    def __init__(self, bands=["B04", "B03", "B02"]):
+    def __init__(self, bands=["B04", "B03", "B02"], identity_index="NDVI"):
         pass
     
     def get_index():
