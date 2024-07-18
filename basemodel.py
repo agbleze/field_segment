@@ -78,6 +78,9 @@ class IndexBlock(nn.Module):
         pass
             
     
+    def get_projection_link():
+        pass
+    
     
     
 
