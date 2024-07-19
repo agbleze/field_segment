@@ -23,7 +23,7 @@ def get_tiff_img(path, return_all_bands, bands=("B01", "B03", "B02"),
     
     else:
         band_indexs = [all_band_names.index(band_name) for band_name in bands]
-    #print(band_indexs)
+
     with rasterio.open(path) as src:
         img_bands = [src.read(band) for band in range(1,13)]
     dstacked_bands = np.dstack([img_bands[band_index] for band_index in band_indexs])
