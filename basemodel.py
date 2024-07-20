@@ -81,6 +81,9 @@ class IndexBlock(nn.Module):
     def get_projection_link():
         pass
     
+    def __len__(self):
+        pass
+    
     
     
 
