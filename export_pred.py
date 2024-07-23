@@ -33,9 +33,3 @@ visualize_segmask(annotation_path="predicted_segmask_07_proba.json",
                   img_dir=test_img_dir
                   )
 
-# %%
-
-model.backbone
-# %%
-model.roi_heads
-# %%
