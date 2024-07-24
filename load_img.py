@@ -101,15 +101,6 @@ train_0_anns = [ann for ann in annot_images if ann["file_name"]=="train_0.tif"][
 
 
 # %%
-mask = [0.0,
-   19.602,
-   33.21799999999998,
-   25.444999999999997,
-   30.714000000000002,
-   61.42,
-   0.0,
-   58.749]
-# %%
 np.int32(mask)
 # %%
 import cv2
