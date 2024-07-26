@@ -91,7 +91,6 @@ def get_transform(train):
 #%%
 
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights="DEFAULT")
-#dataset = PennFudanDataset('data/PennFudanPed', get_transform(train=True))
 img_dir = "/home/lin/codebase/field_segment/data/train_images/images"
 mask_dir = "/home/lin/codebase/field_segment/masks_smp"
 dataset = FieldDataset(img_dir=img_dir, mask_dir=mask_dir,
