@@ -278,7 +278,7 @@ plt.show()
 
 #%%
 
-read_img = Image.open("/home/lin/codebase/field_segment/masks/mask_train_0.tif")#.shape
+read_img = Image.open("/home/lin/codebase/field_segment/masks/mask_train_0.tif")
 
 #%%
 from PIL import ImageDraw
@@ -307,7 +307,7 @@ def create_polygon_mask(image_size, vertices):
       
     
 # %%
-print(type(default_rgb_bands))  # Should print <class 'numpy.ndarray'>
+print(type(default_rgb_bands))
 print(img.dtype)  # Should print uint8
 
 #%%
