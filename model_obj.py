@@ -34,6 +34,3 @@ def get_model_instance_segmentation(num_classes):
                                                        hidden_layer, num_classes
                                                        )
     return model    
-
-
-

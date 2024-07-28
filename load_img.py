@@ -186,8 +186,6 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 #%%
-# Load the image
-#image_path = 'path_to_your_image.jpg'
 #ex_image = Image.open(train_0_path)
 height, width, num_chan = default_rgb_bands.shape
 
@@ -316,3 +314,5 @@ img_masked = cv2.addWeighted(img, 0.7, mask, 0.3, 0)
 # If the type is not as expected, convert the image
 if img.dtype != 'uint8':
     img = img.astype('uint8')
+
+
