@@ -178,10 +178,6 @@ visualize_segmask(annotation_path=train_annot_path, img_dir=img_dir)
 
 #%%
 
-cv2.imread()
-
-#%%
-
 import numpy as np
 from PIL import Image, ImageDraw
 
