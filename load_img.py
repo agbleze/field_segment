@@ -297,12 +297,7 @@ def create_polygon_mask(image_size, vertices):
 
     # Return the image with the drawn polygon
     return mask_img
-#%%  ##outlier detection
-      
-    
-# %%
-print(type(default_rgb_bands))
-print(img.dtype)  # Should print uint8
+
 
 #%%
 img_masked = cv2.addWeighted(img, 0.7, mask, 0.3, 0)
