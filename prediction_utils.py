@@ -95,7 +95,6 @@ def create_prediction_annotation(model, test_img_dir,
                 else:
                     annotations.append({'class': "field", 'segmentation': polygon})
 
-        #print(annotations)
         img_pred_annt = {"file_name": image_name, "annotations": annotations}
         images_annot.append(img_pred_annt)
     final_annot = {"images": images_annot}
