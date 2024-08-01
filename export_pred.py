@@ -10,7 +10,7 @@ from field_segment_utils import visualize_segmask
 
 test_img_paths = sorted(glob(f"data/test_images/images/*.tif"))
 eval_transform = get_transform(train=False)
-model_path = "/home/lin/codebase/field_segment/model_store/fieldmask_net_epoch_100.pth"
+model_path = "model_store/fieldmask_net_epoch_100.pth"
 model = get_model_instance_segmentation(num_classes=2)
 
 # move model to the right device
