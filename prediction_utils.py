@@ -25,7 +25,6 @@ from model_obj import get_transform
 from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 
 def mask_to_polygon(mask):
-    # Find contours in the mask
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     # Approximate the contour to a polygon and flatten the polygon array
