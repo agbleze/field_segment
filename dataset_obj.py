@@ -71,12 +71,7 @@ def get_model_instance_segmentation(num_classes):
     model.roi_heads.mask_predictor = MaskRCNNPredictor(in_features_mask,
                                                        hidden_layer, num_classes
                                                        )
-    return model    
-        
-        
-
-
-
+    return model
 
 def get_transform(train):
     transforms = []
@@ -85,9 +80,6 @@ def get_transform(train):
     transforms.append(T.ToDtype(torch.float, scale=True))
     transforms.append(T.ToPureTensor())
     return T.Compose(transforms)
-
-
-
 #%%
 
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights="DEFAULT")
@@ -218,11 +210,6 @@ from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 # "/home/lin/codebase/field_segment/data/test_images/images/test_0.tif",
 test_img_paths = sorted(glob(f"data/test_images/images/*.tif"))
 
-
-
-
-
-
 #%%
 
 import cv2
@@ -250,13 +237,6 @@ for annotation in annotations:
 # Display the image
 plt.imshow(image)
 plt.show()
-
-
-
-
-
-
-
 
 # %%
 import numpy as np
